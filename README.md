@@ -42,3 +42,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Theme
 
 - use https://tweakcn.com/editor/theme to create styles for the theme
+
+## mprocs
+
+- https://github.com/pvolok/mprocs a dev tool to run multiple process with a single command
