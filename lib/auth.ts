@@ -11,4 +11,6 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
   },
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
 });
