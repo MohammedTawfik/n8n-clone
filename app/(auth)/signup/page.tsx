@@ -1,13 +1,8 @@
-
-import SignupForm from '@/features/auth/components/signup-form'
-import { RedirectIfAuthenticated } from '@/lib/auth-utils'
+import SignupForm from '@/features/auth/components/signup-form';
+import { RedirectIfAuthenticated } from '@/lib/auth-utils';
 const page = async () => {
     await RedirectIfAuthenticated();
-    return (
-        <div>
-            <SignupForm />
-        </div>
-    )
-}
+    return <SignupForm />;
+};
 
-export default page
+export default page;
