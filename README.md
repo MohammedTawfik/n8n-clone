@@ -46,3 +46,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## mprocs
 
 - https://github.com/pvolok/mprocs a dev tool to run multiple process with a single command
+
+## Vercel AI SDK
+
+- https://ai-sdk.dev/
+- AI PRoviders https://ai-sdk.dev/providers/ai-sdk-providers

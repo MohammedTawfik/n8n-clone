@@ -1,14 +1,21 @@
-import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
-import { RequireAuth } from "@/lib/auth-utils";
-export default async function Home() {
+'use client';
+import { useTRPC } from "@/trpc/client";
 
-  const session = await RequireAuth();
+import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+export default function Home() {
+  const trpc = useTRPC();
+  const executeAiQuery = useMutation(trpc.executeAiQuery.mutationOptions())
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-
+        <Button onClick={() => {
+          executeAiQuery.mutate();
+        }}>
+          Execute AI Query
+        </Button>
       </main>
     </div>
   );
