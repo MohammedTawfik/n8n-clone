@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
+import Image from 'next/image';
 
 const formSchema = z.object({
     email: z.email('Email is required'),
@@ -79,13 +80,15 @@ const LoginForm = () => {
                                         disabled={isPending}
                                         type="button"
                                     >
-                                        {isPending ? 'Logging in...' : 'Login'}
+                                        <Image src="/logos/github.svg" alt="Github" width={20} height={20} />
+                                        {isPending ? 'Logging in...' : 'Continue with Github'}
                                     </Button>
                                     <Button
                                         variant="outline"
                                         disabled={isPending}
                                         type="button"
                                     >
+                                        <Image src="/logos/google.svg" alt="Google" width={20} height={20} />
                                         {isPending ? 'Logging in...' : 'Continue with Google'}
                                     </Button>
                                 </div>

@@ -38,3 +38,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## tRPC
 
 - https://trpc.io/docs/client/tanstack-react-query/server-components
+
+## Theme
+
+- use https://tweakcn.com/editor/theme to create styles for the theme
