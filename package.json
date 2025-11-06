@@ -9,9 +9,12 @@
     "lint": "eslint",
     "prisma:init": "npx prisma init",
     "prisma:migrate": "npx prisma migrate dev",
-    "prisma:studio": "npx prisma studio"
+    "prisma:studio": "npx prisma studio",
+    "inngest:dev": "npx inngest-cli@latest dev",
+    "dev:all": "mprocs"
   },
   "dependencies": {
+    "-": "^0.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.19.0",
     "@radix-ui/react-label": "^2.1.8",
@@ -24,7 +27,9 @@
     "class-variance-authority": "^0.7.1",
     "client-only": "^0.0.1",
     "clsx": "^2.1.1",
+    "D": "^1.0.0",
     "dotenv": "^17.2.3",
+    "inngest": "^3.44.5",
     "lucide-react": "^0.548.0",
     "next": "16.0.0",
     "next-themes": "^0.4.6",
@@ -44,6 +49,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
+    "inngest-cli": "^1.13.4",
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
