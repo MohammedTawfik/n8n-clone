@@ -12,6 +12,11 @@ export const executeAiQuery = inngest.createFunction(
       system: `You are a helpful assistant that can answer questions and help with tasks.`,
       model: google('gemini-2.5-flash'),
       prompt: `What is the capital of France?`,
+      experimental_telemetry: {
+        isEnabled: true,
+        recordInputs: true,
+        recordOutputs: true,
+      },
     });
     const response = await steps.text;
     return { message: response };

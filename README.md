@@ -51,3 +51,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 - https://ai-sdk.dev/
 - AI PRoviders https://ai-sdk.dev/providers/ai-sdk-providers
+
+## Sentry
+
+- to log data and make sure it appear in setry use the following
+
+```
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' })
+```
