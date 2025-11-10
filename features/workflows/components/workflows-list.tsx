@@ -9,12 +9,15 @@ import { generateSlug } from 'random-word-slugs';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useUpgradeModel } from '@/hooks/use upgrade-model';
+import Search from './search';
+import EntityPagination from '@/components/entity-pagination';
+import { useWorkflowsParams } from '../hooks/use-workflows-params';
 export const WorkflowsList = () => {
     const { data: workflows } = useSuspenseWorkflows();
 
     return (
         <div>
-            {workflows.map((workflow) => (
+            {workflows.items.map((workflow) => (
                 <div key={workflow.id}>{workflow.name}</div>
             ))}
         </div>
@@ -26,7 +29,7 @@ export const WorkflowsListHeader = ({ isDisable }: { isDisable: boolean }) => {
     const { modal, handleError } = useUpgradeModel();
     const router = useRouter();
     const handleCreateWorkflow = () => {
-        console.log("creating workflow");
+        console.log('creating workflow');
         createWorkflow.mutate(
             {
                 name: generateSlug(3),
@@ -36,7 +39,7 @@ export const WorkflowsListHeader = ({ isDisable }: { isDisable: boolean }) => {
                     router.push(`/workflows/${data.id}`);
                 },
                 onError: (error) => {
-                    console.error(error, "error in create workflow");
+                    console.error(error, 'error in create workflow');
                     if (handleError(error)) {
                         return;
                     }
@@ -65,11 +68,22 @@ export const WorkflowsListContainer = ({
 }: {
     children: React.ReactNode;
 }) => {
+    const workflows = useSuspenseWorkflows();
+    const [params, setParams] = useWorkflowsParams();
     return (
         <EntityContainer
             header={<WorkflowsListHeader isDisable={false} />}
-            search={<></>}
-            pagination={<></>}
+            search={<Search />}
+            pagination={
+                <EntityPagination
+                    page={workflows.data?.page}
+                    pageSize={workflows.data?.pageSize}
+                    totalPages={workflows.data?.totalPages}
+                    onPageChange={(page) => setParams({ ...params, page })}
+                    onPageSizeChange={(pageSize) => setParams({ ...params, pageSize })}
+                    isDisabled={workflows.isFetching}
+                />
+            }
         >
             {children}
         </EntityContainer>
