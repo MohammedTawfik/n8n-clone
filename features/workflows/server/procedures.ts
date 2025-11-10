@@ -6,6 +6,7 @@ import {
 } from '@/trpc/init';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { PAGINATION } from '@/utils/constants';
 
 export const workflowRouter = createTRPCRouter({
   createWorkflow: premiumProcedure
@@ -18,13 +19,58 @@ export const workflowRouter = createTRPCRouter({
         },
       });
     }),
-  getUserWorkflows: protectedProcedure.query(async ({ ctx }) => {
-    return prisma.workflow.findMany({
-      where: {
-        userId: ctx.userSession.user.id,
-      },
-    });
-  }),
+  getUserWorkflows: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(PAGINATION.DEFAULT_PAGE),
+        pageSize: z
+          .number()
+          .min(PAGINATION.MIN_PAGE_SIZE)
+          .max(PAGINATION.MAX_PAGE_SIZE)
+          .default(PAGINATION.DEFAULT_PAGE_SIZE),
+        search: z.string().default(''),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { page, pageSize, search } = input;
+      const [items, count] = await Promise.all([
+        prisma.workflow.findMany({
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+          where: {
+            userId: ctx.userSession.user.id,
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        }),
+        prisma.workflow.count({
+          where: {
+            userId: ctx.userSession.user.id,
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        }),
+      ]);
+      const totalPages = Math.ceil(count / pageSize);
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
+      return {
+        items,
+        count,
+        page,
+        pageSize,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+      };
+    }),
   getWorkflowById: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
