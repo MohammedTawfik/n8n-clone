@@ -12,16 +12,23 @@ import { useUpgradeModel } from '@/hooks/use upgrade-model';
 import Search from './search';
 import EntityPagination from '@/components/entity-pagination';
 import { useWorkflowsParams } from '../hooks/use-workflows-params';
+import EmptyState from '../../../components/empty-state';
+import { FolderIcon } from 'lucide-react';
+import EntityList from '../../../components/entity-list';
+import WorkflowItem from './workflow-item';
+
 export const WorkflowsList = () => {
     const { data: workflows } = useSuspenseWorkflows();
-
     return (
-        <div>
-            {workflows.items.map((workflow) => (
-                <div key={workflow.id}>{workflow.name}</div>
-            ))}
-        </div>
-    );
+        <EntityList
+            items={workflows.items}
+            renderItem={(workflow) => (
+                <WorkflowItem key={workflow.id} workflow={workflow} />
+            )}
+            getKey={(workflow) => workflow.id}
+            emptyState={<EmptyState title="No Workflows" description="No workflows found" content="Create your first workflow to get started" icon={<FolderIcon />} />}
+        />
+    )
 };
 
 export const WorkflowsListHeader = ({ isDisable }: { isDisable: boolean }) => {
@@ -29,7 +36,6 @@ export const WorkflowsListHeader = ({ isDisable }: { isDisable: boolean }) => {
     const { modal, handleError } = useUpgradeModel();
     const router = useRouter();
     const handleCreateWorkflow = () => {
-        console.log('creating workflow');
         createWorkflow.mutate(
             {
                 name: generateSlug(3),
