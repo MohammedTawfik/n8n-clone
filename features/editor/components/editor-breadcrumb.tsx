@@ -22,7 +22,7 @@ const EditorBreadcrumb = ({ workflowId }: EditorBreadcrumbProps) => {
     const { data: workflow } = useSuspenseGetWorkflowById(workflowId);
     const [isEditing, setIsEditing] = useState(false);
     // Initialize with workflow.name, will be reset when workflowId changes (component remounts)
-    const [newName, setNewName] = useState(() => workflow.name);
+    const [newName, setNewName] = useState(() => workflow.workflow.name);
     const updateWorkflowName = useUpdateWorkflowName();
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +36,7 @@ const EditorBreadcrumb = ({ workflowId }: EditorBreadcrumbProps) => {
 
     const handleUpdateWorkflowName = async () => {
         try {
-            if (newName && newName.trim() !== workflow.name) {
+            if (newName && newName.trim() !== workflow.workflow.name) {
                 const result = await updateWorkflowName.mutateAsync({
                     id: workflowId,
                     name: newName,
@@ -46,13 +46,13 @@ const EditorBreadcrumb = ({ workflowId }: EditorBreadcrumbProps) => {
                 setNewName(result.name);
             } else {
                 // If no change, just reset to current workflow.name
-                setNewName(workflow.name);
+                setNewName(workflow.workflow.name);
             }
             setIsEditing(false);
         } catch (error) {
             console.error(error);
             // On error, reset to current workflow.name
-            setNewName(workflow.name);
+            setNewName(workflow.workflow.name);
             setIsEditing(false);
         }
     };
@@ -63,7 +63,7 @@ const EditorBreadcrumb = ({ workflowId }: EditorBreadcrumbProps) => {
         }
         if (e.key === 'Escape') {
             setIsEditing(false);
-            setNewName(workflow.name);
+            setNewName(workflow.workflow.name);
         }
     }
 
@@ -93,11 +93,11 @@ const EditorBreadcrumb = ({ workflowId }: EditorBreadcrumbProps) => {
                             className="cursor-pointer hover:text-foreground transition-colors"
                             onClick={() => {
                                 // Sync newName with latest workflow.name when starting to edit
-                                setNewName(workflow.name);
+                                setNewName(workflow.workflow.name);
                                 setIsEditing(true);
                             }}
                         >
-                            {workflow.name}
+                            {workflow.workflow.name}
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 )}
