@@ -19,6 +19,8 @@ import {
 import '@xyflow/react/dist/style.css';
 import { NODE_TYPES_MAPPING } from '@/lib/node-types-mapping';
 import { AddNodeButton } from './add-node-button';
+import { reactFlowAtom } from '../store/atoms';
+import { useSetAtom } from 'jotai';
 
 interface WorkflowEditorProps {
     workflowId: string;
@@ -28,6 +30,8 @@ const WorkflowEditor = ({ workflowId }: WorkflowEditorProps) => {
     const { data: workflow } = useSuspenseGetWorkflowById(workflowId);
     const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
     const [edges, setEdges] = useState<Edge[]>(workflow.edges);
+
+    const setReactFlow = useSetAtom(reactFlowAtom);
 
     const onNodesChange = useCallback(
         (changes: NodeChange[]) =>
@@ -58,6 +62,13 @@ const WorkflowEditor = ({ workflowId }: WorkflowEditorProps) => {
                     hideAttribution: true,
                 }}
                 nodeTypes={NODE_TYPES_MAPPING}
+                onInit={setReactFlow}
+                snapGrid={[15, 15]}
+                snapToGrid
+                panOnDrag
+                panOnScroll
+                selectionOnDrag
+
             >
                 <Background />
                 <MiniMap />

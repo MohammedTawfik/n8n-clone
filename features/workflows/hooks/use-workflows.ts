@@ -99,3 +99,26 @@ export const useUpdateWorkflowName = () => {
 	);
 	return updateWorkflowName;
 };
+
+/**
+ *  Hook to save workflow name
+ */
+export const useUpdateWorkflow = () => {
+	const trpc = useTRPC();
+	const queryClient = useQueryClient();
+	const updateWorkflowName = useMutation(
+		trpc.workflows.updateWorkflow.mutationOptions({
+			onSuccess: (data) => {
+				toast.success(`Workflow "${data.name}" saved successfully`);
+				queryClient.invalidateQueries(
+					trpc.workflows.getWorkflowById.queryOptions({ id: data.id }),
+				);
+			},
+			onError: (error) => {
+				toast.error(error.message);
+				console.error(error);
+			},
+		}),
+	);
+	return updateWorkflowName;
+};
