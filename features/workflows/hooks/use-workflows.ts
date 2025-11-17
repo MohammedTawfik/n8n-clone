@@ -122,3 +122,23 @@ export const useUpdateWorkflow = () => {
 	);
 	return updateWorkflowName;
 };
+
+/**
+ *  Hook to execute a workflow
+ */
+export const useExecuteWorkflow = () => {
+	const trpc = useTRPC();
+	const executeWorkflow = useMutation(
+		trpc.workflows.executeWorkflow.mutationOptions({
+			onSuccess: (data) => {
+				toast.success(`Workflow "${data.name}" executed successfully`);
+				
+			},
+			onError: (error) => {
+				toast.error(error.message);
+				console.error(error);
+			},
+		}),
+	);
+	return executeWorkflow;
+};

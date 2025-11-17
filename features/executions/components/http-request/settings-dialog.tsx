@@ -44,39 +44,29 @@ interface HttpRequestSettingsDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSubmit: (values: z.infer<typeof HttpRequestSettingsSchema>) => void;
-    defaultMethod?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-    defaultEndpoint?: string;
-    defaultBody?: string;
+    defaultValues?: Partial<HttpRequestSettings>;
 }
 
 export const HttpRequestSettingsDialog = ({
     open,
     onOpenChange,
-    defaultMethod = 'GET',
-    defaultEndpoint = '',
-    defaultBody = '',
+    defaultValues,
     onSubmit,
 }: HttpRequestSettingsDialogProps) => {
     const form = useForm<HttpRequestSettings>({
         resolver: zodResolver(HttpRequestSettingsSchema),
         defaultValues: {
-            method: defaultMethod,
-            endpoint: defaultEndpoint,
-            body: defaultBody,
+            ...defaultValues,
         },
     });
 
 
     useEffect(() => {
         if (open) {
-            form.reset({
-                method: defaultMethod,
-                endpoint: defaultEndpoint,
-                body: defaultBody,
-            });
+            form.reset(defaultValues);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open, defaultMethod, defaultEndpoint, defaultBody]);
+    }, [open, defaultValues]);
 
     const watchMethod = useWatch({ control: form.control, name: 'method' });
     const showBody = ['POST', 'PUT', 'PATCH'].includes(watchMethod);

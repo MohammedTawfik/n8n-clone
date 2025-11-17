@@ -1,6 +1,6 @@
 'use client';
 import { useSuspenseGetWorkflowById } from '@/features/workflows/hooks/use-workflows';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
     ReactFlow,
     applyNodeChanges,
@@ -21,6 +21,8 @@ import { NODE_TYPES_MAPPING } from '@/lib/node-types-mapping';
 import { AddNodeButton } from './add-node-button';
 import { reactFlowAtom } from '../store/atoms';
 import { useSetAtom } from 'jotai';
+import { NodeType } from '@/lib/generated/prisma/enums';
+import ExecuteWorkflowButton from './execute-workflow-button';
 
 interface WorkflowEditorProps {
     workflowId: string;
@@ -33,6 +35,9 @@ const WorkflowEditor = ({ workflowId }: WorkflowEditorProps) => {
 
     const setReactFlow = useSetAtom(reactFlowAtom);
 
+    const hasManualTrigger = useMemo(() => {
+        return nodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
+    }, [nodes]);
     const onNodesChange = useCallback(
         (changes: NodeChange[]) =>
             setNodes((nodesSnapshot: Node[]) => applyNodeChanges(changes, nodesSnapshot)),
@@ -76,6 +81,11 @@ const WorkflowEditor = ({ workflowId }: WorkflowEditorProps) => {
                 <Panel position="top-right">
                     <AddNodeButton />
                 </Panel>
+                {hasManualTrigger && (
+                    <Panel position="bottom-center">
+                        <ExecuteWorkflowButton workflowId={workflowId} />
+                    </Panel>
+                )}
             </ReactFlow>
         </div>
     );
