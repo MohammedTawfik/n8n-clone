@@ -31,6 +31,13 @@ import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 
 const HttpRequestSettingsSchema = z.object({
+    name: z
+        .string()
+        .min(1, { message: 'Please enter an identifier for the node' })
+        .regex(/^[a-zA-Z][a-zA-Z0-9_]*$/, {
+            message:
+                'Name must start with a letter and can only contain letters, numbers, underscores',
+        }),
     method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], {
         message: 'Please select a valid method',
     }),
@@ -56,14 +63,24 @@ export const HttpRequestSettingsDialog = ({
     const form = useForm<HttpRequestSettings>({
         resolver: zodResolver(HttpRequestSettingsSchema),
         defaultValues: {
-            ...defaultValues,
+            name: defaultValues?.name ?? 'my_http_request',
+            method: defaultValues?.method ?? 'GET',
+            endpoint: defaultValues?.endpoint ?? '' as unknown as HttpRequestSettings['endpoint'],
+            body: defaultValues?.body ?? undefined,
         },
     });
 
+    // React Hook Form–controlled value for the name field
+    const watchedName = useWatch({ control: form.control, name: 'name' });
 
     useEffect(() => {
         if (open) {
-            form.reset(defaultValues);
+            form.reset({
+                name: defaultValues?.name ?? 'my_http_request',
+                method: defaultValues?.method ?? 'GET',
+                endpoint: defaultValues?.endpoint ?? '' as unknown as HttpRequestSettings['endpoint'],
+                body: defaultValues?.body ?? undefined,
+            });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, defaultValues]);
@@ -93,6 +110,29 @@ export const HttpRequestSettingsDialog = ({
                         onSubmit={handleSubmit}
                         className="space-y-8 mt-4"
                     >
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name</FormLabel>
+
+                                    <FormControl>
+                                        <Input
+                                            type="text"
+                                            placeholder="my_http_request"
+                                            className="w-full"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Use this name to reference the result in other nodes:{' '}
+                                        {`{{${watchedName || 'my_http_request'}.httpResponse.data}}`}
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name="method"
@@ -154,7 +194,8 @@ export const HttpRequestSettingsDialog = ({
                                     <FormItem>
                                         <FormLabel>Body</FormLabel>
                                         <FormDescription>
-                                            JSON with template variables use {'{{variables}}'} for simple values or
+                                            JSON with template variables use {'{{variables}}'} for
+                                            simple values or
                                             {'{{json variable}}'} to stringify objects.
                                         </FormDescription>
                                         <FormControl>
@@ -173,7 +214,10 @@ export const HttpRequestSettingsDialog = ({
                             />
                         )}
                         <DialogFooter>
-                            <Button type="submit" className="w-full mt-4">
+                            <Button
+                                type="submit"
+                                className="w-full mt-4"
+                            >
                                 Save
                             </Button>
                         </DialogFooter>

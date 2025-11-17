@@ -5,6 +5,7 @@ import { GlobeIcon } from 'lucide-react';
 import { HttpRequestSettings, HttpRequestSettingsDialog } from './settings-dialog';
 
 type HttpRequestNodeData = {
+    name: string;
     endpoint: string;
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     body?: string;
@@ -30,9 +31,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
                         ...node,
                         data: {
                             ...node.data,
-                            endpoint: values.endpoint,
-                            method: values.method,
-                            body: values.body,
+                            ...values,
                         },
                     };
                 }
@@ -48,6 +47,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
                 onOpenChange={setOpenSettingsDialog}
                 onSubmit={handleSubmit}
                 defaultValues={{
+                    name: nodeData?.name,
                     method: nodeData?.method,
                     endpoint: nodeData?.endpoint,
                     body: nodeData?.body,
