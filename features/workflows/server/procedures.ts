@@ -9,6 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { PAGINATION } from "@/utils/constants";
 import type { Edge, Node, XYPosition } from "@xyflow/react";
 import { NodeType } from "@/lib/generated/prisma/enums";
+import { inngest } from "@/inngest/client";
 
 export const workflowRouter = createTRPCRouter({
 	createWorkflow: premiumProcedure
@@ -236,5 +237,28 @@ export const workflowRouter = createTRPCRouter({
 					userId: ctx.userSession.user.id,
 				},
 			});
+		}),
+	executeWorkflow: premiumProcedure
+		.input(z.object({
+			workflowId: z.string(),
+		}))
+		.mutation(async ({ ctx, input }) => {
+			const workflow = await prisma.workflow.findUniqueOrThrow({
+				where: {
+					id: input.workflowId,
+					userId: ctx.userSession.user.id,
+				},
+			});
+			if (!workflow) {
+				throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found or you are not the owner of this workflow" });
+			}
+			 await inngest.send({
+				name: "workflow/execute",
+				data: {
+					workflowId: input.workflowId,
+					userId: ctx.userSession.user.id,
+				},
+			});
+			return workflow;
 		}),
 });

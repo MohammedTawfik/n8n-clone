@@ -1,24 +1,47 @@
 import { inngest } from './client';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { generateText } from 'ai';
-
-const google = createGoogleGenerativeAI();
+import { NonRetriableError } from 'inngest';
+import prisma from '@/lib/db';
+import { sortNodes } from './utils/utils';
+import { getExecutor } from '@/features/executions/lib/executor-registry';
 
 export const executeAiQuery = inngest.createFunction(
-  { id: 'execute-ai-query' },
-  { event: 'ai/execute-query' },
+  { id: 'execute-workflow' },
+  { event: 'workflow/execute' },
   async ({ event, step }) => {
-    const steps = await step.ai.wrap('gemini-generate-text', generateText, {
-      system: `You are a helpful assistant that can answer questions and help with tasks.`,
-      model: google('gemini-2.5-flash'),
-      prompt: `What is the capital of France?`,
-      experimental_telemetry: {
-        isEnabled: true,
-        recordInputs: true,
-        recordOutputs: true,
-      },
+    const workflowId = event.data.workflowId;
+    if (!workflowId) {
+      throw new NonRetriableError('Workflow ID is required');
+    }
+    const nodes = await step.run('get-nodes', async () => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: {
+          id: workflowId,
+          userId: event.data.userId,
+        },
+        include: {
+          nodes: true,
+          connections: true,
+        },
+      });
+      if (!workflow) {
+        throw new NonRetriableError('Workflow not found');
+      }
+      return sortNodes(workflow.nodes, workflow.connections);
     });
-    const response = await steps.text;
-    return { message: response };
+
+    // Initialize the context  with any initial data from the trigger
+    let context = event.data.initialData || {};
+
+    for (const node of nodes) {
+      const executor = getExecutor(node.type);
+      context = await executor({
+        data: node.data as Record<string, unknown>,
+        nodeId: node.id,
+        context,
+        step
+      });
+    }
+
+    return context;
   }
 );
