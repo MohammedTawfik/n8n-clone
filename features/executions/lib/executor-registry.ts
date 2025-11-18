@@ -2,6 +2,7 @@ import { NodeType } from '@/lib/generated/prisma/enums';
 import { GetStepTools, Inngest } from 'inngest';
 import { manualTriggerExecutor } from '@/features/triggers/components/manual-trigger/executor';
 import { httpRequestExecutor } from '../components/http-request/executor';
+import { Realtime } from '@inngest/realtime';
 
 export type WorkflowContext = Record<string, unknown>; //is used to pass data from one node to another so its type is dynamic
 
@@ -12,6 +13,7 @@ export interface NodeExecutorParams<TData = Record<string, unknown>> {
   nodeId: string;
   context: WorkflowContext;
   step: StepTools;
+  publish: Realtime.PublishFn;
 }
 
 export type NodeExecutor<TData = Record<string, unknown>> = (
@@ -19,7 +21,7 @@ export type NodeExecutor<TData = Record<string, unknown>> = (
 ) => Promise<WorkflowContext>;
 
 export const EXECUTOR_REGISTRY: Record<NodeType, NodeExecutor> = {
-    [NodeType.HTTP_REQUEST]: httpRequestExecutor,
+    [NodeType.HTTP_REQUEST]: httpRequestExecutor as NodeExecutor,
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
   [NodeType.INITIAL]: async (params) => {
     return params.context;
