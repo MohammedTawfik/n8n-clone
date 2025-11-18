@@ -61,3 +61,7 @@ import * as Sentry from "@sentry/nextjs";
 
 Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' })
 ```
+
+## Templates
+
+- to pass the whole output of previous node use this {{json nameofnode.data}} "json" is a keyword as it represent the name of handlebar helper used to translatet he template it defined in "features\executions\components\http-request\executor.ts" file
