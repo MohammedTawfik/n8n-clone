@@ -3,11 +3,16 @@ import { NonRetriableError } from 'inngest';
 import prisma from '@/lib/db';
 import { sortNodes } from './utils/utils';
 import { getExecutor } from '@/features/executions/lib/executor-registry';
+import { httpRequestChannel } from './channels/http-request';
+import { manualTriggerChannel } from './channels/manual-trigger';
 
 export const executeAiQuery = inngest.createFunction(
   { id: 'execute-workflow' },
-  { event: 'workflow/execute' },
-  async ({ event, step }) => {
+  {
+    event: 'workflow/execute',
+    channels: [httpRequestChannel(), manualTriggerChannel()],
+  },
+  async ({ event, step, publish }) => {
     const workflowId = event.data.workflowId;
     if (!workflowId) {
       throw new NonRetriableError('Workflow ID is required');
@@ -38,7 +43,8 @@ export const executeAiQuery = inngest.createFunction(
         data: node.data as Record<string, unknown>,
         nodeId: node.id,
         context,
-        step
+        step,
+        publish,
       });
     }
 
