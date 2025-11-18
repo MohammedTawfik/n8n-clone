@@ -30,20 +30,38 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 
-const HttpRequestSettingsSchema = z.object({
-    name: z
-        .string()
-        .min(1, { message: 'Please enter an identifier for the node' })
-        .regex(/^[a-zA-Z][a-zA-Z0-9_]*$/, {
-            message:
-                'Name must start with a letter and can only contain letters, numbers, underscores',
+const HttpRequestSettingsSchema = z
+    .object({
+        name: z
+            .string()
+            .min(1, { message: 'Please enter an identifier for the node' })
+            .regex(/^[a-zA-Z][a-zA-Z0-9_]*$/, {
+                message:
+                    'Name must start with a letter and can only contain letters, numbers, underscores',
+            }),
+        method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], {
+            message: 'Please select a valid method',
         }),
-    method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], {
-        message: 'Please select a valid method',
-    }),
-    endpoint: z.url({ message: 'Please enter a valid URL' }),
-    body: z.string().optional(),
-});
+        endpoint: z.url({ message: 'Please enter a valid URL' }),
+        body: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+        const methodsRequiringBody: HttpRequestSettings['method'][] = [
+            'PUT',
+            'PATCH',
+            'POST',
+        ];
+        if (
+            methodsRequiringBody.includes(data.method) &&
+            (!data.body || data.body.trim() === '')
+        ) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['body'],
+                message: 'Body is required for this HTTP method',
+            });
+        }
+    });
 
 export type HttpRequestSettings = z.infer<typeof HttpRequestSettingsSchema>;
 
@@ -97,7 +115,7 @@ export const HttpRequestSettingsDialog = ({
             open={open}
             onOpenChange={onOpenChange}
         >
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle> HTTP Request Settings</DialogTitle>
 
@@ -209,6 +227,7 @@ export const HttpRequestSettingsDialog = ({
                                                 {...field}
                                             />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
